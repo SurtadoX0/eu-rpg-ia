@@ -19,9 +19,9 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
 
 [DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS E VARIÁVEIS]
-- Padrão Estruturado: Termine os turnos com opções numéricas fechadas.
+- Padrão Estruturado: Termine os turnos com opções numéricas fechadas, OBRIGATORIAMENTE uma embaixo da outra (uma por linha).
 - Quantidade Flutuante: O número de escolhas varia de acordo com a situação (de 3 até 6 opções completas), dando mais rotas quando o cenário pedir estratégia.
-- Exceção Aberta: Perguntas totalmente em aberto ("O que você faz?") são raras e exclusivas de áreas seguras ou momentos de total calmaria.
+- Exceção Aberta: Perguntas totalmente em aberto são raras e exclusivas de áreas seguras ou momentos de total calmaria.
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
 - Progresso por Uso (Prática): Toda ação repetida gera ganho direto e orgânico de proficiência percentual.
@@ -136,38 +136,35 @@ with aba_chat:
         Habilidades Atuais: {state['habilidades']}
         Regras do Sistema: {state['regras_custom']}
         
-        DIRETRIZ DE FORMATAÇÃO DO CAMPO 'NARRATIVA':
-        Monte o campo "narrativa" obrigatoriamente usando Markdown estruturado em blocos exatamente como o exemplo a seguir:
+        DIRETRIZ DE FILTRAGEM E LIMPEZA DE NARRATIVA:
+        Monte o campo "narrativa" em Markdown respeitando estritamente o surgimento de blocos por utilidade:
         
         ### [Título do Evento ou Local]
-        **Resultado do Dado (Se aplicável):** X (Descrição do sucesso/falha)
+        **Resultado do Dado (Se aplicável):** X
         
         O Confronto / Ação:
-        (Texto narrativo descrevendo os acontecimentos)
+        (Texto descritivo)
         
-        🎮 ALERTA DE SISTEMA: EVOLUÇÃO DE HABILIDADE (Mecânica Shangri-La / Solo Leveling)
-        [Condição Atendida]: (Se houver ganho de proficiência ou evolução/fusão de skill, coloque aqui com bônus e ranks)
+        🎮 ALERTA DE SISTEMA: (Exiba APENAS se houver ganho de nível ou proficiência nova)
         
-        🎁 Espólios de Guerra & Consequências (Se houver loot, moedas ou benefícios territoriais/alianças)
+        🎁 Espólios de Guerra: (Exiba APENAS se o jogador ganhou loot ou moedas novas. Se NÃO ganhou nada, OMITA esse bloco por completo)
         
-        📈 Atualização do Sistema Inconsciente
-        Estamina: X% ➔ Y%
-        Poder de Luta Individual: X ➔ Y
-        Poder de Luta Combinado/Mascote: (Se houver)
+        📈 Atualização do Sistema Inconsciente: (Exiba APENAS se a Estamina ou o Poder de Luta mudaram de valor real neste turno. Se os valores continuam idênticos, OMITA esse bloco por completo)
         
-        📊 Painel do Jogador (Mostre os dados em uma tabela Markdown limpa contendo Poder de Luta, Estamina, Moedas, Territórios, Equipamentos e Resumo do Inventário)
+        📊 Painel do Jogador: (Mostre a tabela com os dados atuais)
         
-        🗺️ Cenário: (Contexto atual do mapa, nós, clima e dia/tempo do jogo)
+        🗺️ Cenário: (Exiba APENAS se o jogador mudou de local, se o clima mudou ou se o tempo passou significativamente. Se ele continua no exato mesmo lugar e situação do turno anterior, OMITA esse bloco por completo)
         
-        (Pergunta final de ação do Mestre)
-        [1] Opção Dinâmica 1
-        [2] Opção Dinâmica 2
-        ...
-        [6] Opção Dinâmica 6 (Apresente de 3 a 6 opções numeradas dependendo da complexidade imediata do cenário)
+        DIRETRIZ DE OPÇÕES:
+        As opções numéricas ao final devem vir OBRIGATORIAMENTE uma embaixo da outra (uma por linha, separadas por quebra de linha física no markdown). Nunca coloque as opções na mesma linha ou em bloco contínuo.
+        Exemplo exigido:
+        [1] Opção um
+        [2] Opção dois
+        [3] Opção três
         
         FORMATO JSON EXIGIDO:
         {{
-          "narrativa": "Sua resposta completa formatada em Markdown igual ao modelo",
+          "narrativa": "Sua resposta formatada em Markdown seguindo estritamente as regras de omissão e quebra de linha acima",
           "atributos": {{
             "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
           }},
@@ -181,11 +178,10 @@ with aba_chat:
             response = model.generate_content([{"role": "user", "parts": [m["content"]]} for m in state["historico"]])
             dados = json.loads(response.text)
             
-            # BLINDAGEM COM .GET(): Se faltar alguma chave, o app não quebra
             state["atributos"] = dados.get("atributos", state["atributos"])
             state["inventario"] = dados.get("inventario", state["inventario"])
             state["habilidades"] = dados.get("habilidades", state["habilidades"])
-            narrativa_final = dados.get("narrativa", "O mestre se confundiu com os blocos. Por favor, envie sua ação novamente.")
+            narrativa_final = dados.get("narrativa", "O mestre encontrou uma falha no formato. Reenvie sua ação.")
             
             with container_chat:
                 with st.chat_message("assistant"):
