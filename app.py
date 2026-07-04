@@ -3,9 +3,11 @@ import google.generativeai as genai
 import json
 import os
 
-# CONFIGURAÇÃO DA API 
-API_KEY = "AQ.Ab8RN6KmmYLr2ccKqnG6wc2pRTrVAVNZEAp8buG3Jdc1VFHJhw"
-genai.configure(api_key=API_KEY)
+# CONFIGURAÇÃO SEGURA DA API (Escondida no Streamlit Cloud)
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("⚠️ Chave 'GEMINI_API_KEY' não encontrada nos Secrets do Streamlit!")
 
 SAVE_FILE = "rpg_engine_save.json"
 
@@ -18,9 +20,9 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Limitação de Aprendizado: O personagem falha em ações complexas no início, pois ainda não aprendeu.
 
 [DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS]
-- Padrão Estruturado: Na maior parte do tempo (combates, perigos, ações imediatas), o Mestre deve fechar o turno com opções numéricas (1, 2, 3...) claras e específicas para guiar o ritmo.
-- Quantidade Variável: O número de opções não é fixo; ele pode variar (ex: entre 3 a 5 escolhas) de acordo com o que o cenário permitir.
-- Exceções de Mundo Aberto: Deixar a escolha totalmente livre ("O que você faz?") deve ocorrer de vez em quando e apenas em momentos específicos de descanso, vilas seguras ou transições de história.
+- Padrão Focado: Na maior parte do tempo (combates, perigos), o Mestre deve fechar o turno com opções numéricas claras.
+- Quantidade Livre: O número de opções numéricas pode variar de acordo com o cenário (ex: 3, 4 ou 5 escolhas).
+- Exceção Aberta: Perguntas em aberto ("O que você faz?") são raras e exclusivas de vilas seguras ou áreas sem perigo iminente.
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
 - Progresso por Uso (Prática): Toda ação física, mental ou técnica repetida gera ganho direto e orgânico de proficiência.
@@ -33,7 +35,7 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 
 [SISTEMA DE PSICOLOGIA E SOBREVIVÊNCIA]
 - Sanidade e Trauma: Presenciar horrores drena a Sanidade, causando tremores ou falhas no d20.
-- Percepção Mundial: O mundo reage a você (visto como presa, aberração ou alguém para proteger).
+- Percepção Mundial: O mundo reage a você (visto como presa, uma aberração ou alguém para proteger).
 
 [UNIVERSOS CONVERGENTES (INTEGRAÇÃO TOTAL)]
 - Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e sistemas.
@@ -167,7 +169,7 @@ with aba_chat:
             "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
           }},
           "inventario": "Lista de itens",
-          "habilidades": "Lista updated de habilidades"
+          "habilidades": "Lista atualizada de habilidades"
         }}
         """
 
