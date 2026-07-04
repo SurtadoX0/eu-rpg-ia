@@ -11,53 +11,24 @@ else:
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO ATUALIZADAS (ESCALONAMENTO E EVOLUÇÃO)
+# REGRAS PADRÃO AJUSTADAS PARA O NOVO ESTILO VISUAL E ESCOLHAS AMPLAS
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
 - Inventário Inicial: O jogador começa COMPLETAMENTE SEM NADA.
 - Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
-- Limitação de Aprendizado: O personagem falha em ações complexas no início, pois ainda não aprendeu.
 
-[DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS]
-- Padrão Focado: Na maior parte do tempo (combates, perigos), o Mestre deve fechar o turno com opções numéricas claras.
-- Quantidade Livre: O número de opções numéricas pode variar de acordo com o cenário (ex: 3, 4 ou 5 escolhas).
-- Exceção Aberta: Perguntas em aberto ("O que você faz?") são raras e exclusivas de vilas seguras ou áreas sem perigo iminente.
+[DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS E VARIÁVEIS]
+- Padrão Estruturado: Termine os turnos com opções numéricas bem específicas de escolha.
+- Quantidade Flutuante: O número de opções deve variar organicamente conforme a situação do cenário, podendo ir de 3 até 6 escolhas numéricas completas para dar mais profundidade estratégica quando necessário.
+- Exceção Aberta: Perguntas totalmente em aberto ("O que você faz?") são raras e exclusivas de áreas seguras ou momentos de total calmaria.
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
-- Progresso por Uso (Prática): Toda ação física, mental ou técnica repetida gera ganho direto e orgânico de proficiência percentual.
-- Notificações de Ganhos: O Mestre deve relatar esses micro-ganhos na narrativa de forma quantificada e percentual a cada ação relevante (Ex: "+6% de capacidade cardiovascular").
-- Registro de Ficha: Esses bônus devem ser listados acumulados na seção de Habilidades do jogador.
-
-[DIRETRIZ DE ESCALONAMENTO E EVOLUÇÃO DE TIER]
-- Dificuldade Inversa: À medida que os atributos e as proficiências sobem, ações antes difíceis tornam-se progressivamente mais fáceis. O Mestre deve dar bônus nas rolagens ou tornar ações básicas automáticas (sem necessidade de d20).
-- Passar de Nível / Mudança de Tier: As habilidades devem evoluir de categoria conforme acumulam porcentagem. O Mestre deve mudar o nome e o nível das ações de forma contínua (Exemplo: Caminhada Basica -> Corrida -> Corrida Rápida -> Corrida Impulsionada por Poder/Energia). Isso se aplica a tudo: força física, furtividade, controle de energia, etc.
-- Alerta de Rank Up: O Mestre deve anunciar textualmente quando uma habilidade sua "Upar" de Tier.
-
-[SISTEMA DE RAÇAS E DESCOBERTA OCULTA]
-- Linhagem Imprevisível: O jogador pode nascer pertencendo a qualquer raça dos 5 universos convergentes.
-- Despertar Tardio e Pistas Orgânicas: A natureza oculta manifesta-se por anomalias sutis no corpo durante esforços extremos.
-
-[SISTEMA DE PSICOLOGIA E SOBREVIVÊNCIA]
-- Sanidade e Trauma: Presenciar horrores drena a Sanidade, causando tremores ou falhas no d20.
-- Percepção Mundial: O mundo reage a você (visto como presa, uma aberração ou alguém para proteger).
+- Progresso por Uso (Prática): Toda ação repetida gera ganho direto e orgânico de proficiência percentual.
+- Evolução de Nível e Fusão: Habilidades mudam de nome e sobem de nível conforme o uso (Ex: Caminhada -> Corrida -> Corrida Suprema com Poder). Habilidades compatíveis se fundem em técnicas superiores de Rank maior.
 
 [UNIVERSOS CONVERGENTES (INTEGRAÇÃO TOTAL)]
-- Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e sistemas.
-
-[SISTEMA DE TEMPO E TURNOS]
-- Ciclo Diário: Manhã, Tarde e Noite. Cada ação complexa consome exatamente 1 Turno.
-
-[ATRIBUTOS VITAIS E PROGRESSÃO]
-- Estamina: Consumida por ações físicas e habilidades.
-- Poder de Luta (PL): Força absoluta recalculada após treinos ou feitos.
-- Estado Corporal: Condição física real. Treinos até a falha mecânica amplificam o Estado Corporal e o PL.
-
-[MECÂNICAS DE JOGO]
-- Ações com Dado d20: Rolagens realistas e punitivas.
-- A Morte Não é o Fim: Gatilho para recomeço imprevisível ou reencarnação caótica.
-- Alertas de Sistema: "[ALERTA DE SISTEMA: NOVA HABILIDADE ADQUIRIDA]".
-- Fusão de Habilidades: Habilidades compatíveis se fundem."""
+- Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e sistemas."""
 
 def carregar_jogo():
     if os.path.exists(SAVE_FILE):
@@ -145,13 +116,13 @@ st.title("🧙‍♂️ Mestre Automatizado")
 aba_chat, aba_inv, aba_skills, aba_regras = st.tabs(["💬 Jogo & Narrativa", "🎒 Inventário", "🥋 Habilidades", "⚙️ Regras"])
 
 with aba_chat:
-    container_chat = st.container(height=500)
+    container_chat = st.container(height=600)
     with container_chat:
         for msg in state["historico"]:
             with st.chat_message(msg["role"]):
                 st.write(msg["content"])
 
-    if prompt := st.chat_input("Digite ação..."):
+    if prompt := st.chat_input("Digite sua escolha ou ação..."):
         with container_chat:
             with st.chat_message("user"):
                 st.write(prompt)
@@ -159,23 +130,40 @@ with aba_chat:
         state["historico"].append({"role": "user", "content": prompt})
 
         instrucao_sistema = f"""
-        Você é o Mestre do RPG. Responda APENAS em JSON.
-        Status: {json.dumps(state['atributos'])}
-        Regras: {state['regras_custom']}
+        Você é o Mestre do RPG. Responda APENAS em um JSON estruturado.
+        Status Atual: {json.dumps(state['atributos'])}
+        Inventário Atual: {state['inventario']}
+        Habilidades Atuais: {state['habilidades']}
+        Regras do Sistema: {state['regras_custom']}
         
-        REGRAS DE ALTERAÇÃO AUTOMÁTICA:
-        1. Se o jogador correu, atacou ou usou força, diminua a 'Estamina' proporcionalmente.
-        2. Atualize o campo 'habilidades' incluindo os ganhos de proficiência e evoluções de rank/tier alcançados.
+        DIRETRIZ DE FORMATAÇÃO DO CAMPO 'NARRATIVA':
+        Monte o campo "narrativa" obrigatoriamente usando Markdown estruturado em blocos exatamente como o exemplo a seguir:
         
-        FORMATO JSON:
-        {{
-          "narrativa": "Narração dos fatos. Por padrão, termine com uma lista de opções fechadas e numéricas (como 3 a 5 opções numeradas) que varie de acordo com a situação do cenário. Permita perguntas totalmente em aberto somente em raros momentos de total calmaria e segurança.",
-          "atributos": {{
-            "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
-          }},
-          "inventario": "Lista de itens",
-          "habilidades": "Lista atualizada de habilidades"
-        }}
+        ### [Título do Evento ou Local]
+        **Resultado do Dado (Se aplicável):** X (Descrição do sucesso/falha)
+        
+        O Confronto / Ação:
+        (Texto narrativo descrevendo os acontecimentos)
+        
+        🎮 ALERTA DE SISTEMA: EVOLUÇÃO DE HABILIDADE (Mecânica Shangri-La / Solo Leveling)
+        [Condição Atendida]: (Se houver ganho de proficiência ou evolução/fusão de skill, coloque aqui com bônus e ranks)
+        
+        🎁 Espólios de Guerra & Consequências (Se houver loot, moedas ou benefícios territoriais/alianças)
+        
+        📈 Atualização do Sistema Inconsciente
+        Estamina: X% ➔ Y%
+        Poder de Luta Individual: X ➔ Y
+        Poder de Luta Combinado/Mascote: (Se houver)
+        
+        📊 Painel do Jogador (Mostre os dados em uma tabela Markdown limpa contendo Poder de Luta, Estamina, Moedas, Territórios, Equipamentos e Resumo do Inventário)
+        
+        🗺️ Cenário: (Contexto atual do mapa, nós, clima e dia/tempo do jogo)
+        
+        (Pergunta final de ação do Mestre)
+        [1] Opção Dinâmica 1
+        [2] Opção Dinâmica 2
+        ...
+        [6] Opção Dinâmica 6 (Apresente de 3 a 6 opções numeradas dependendo da complexidade imediata do cenário)
         """
 
         try:
@@ -191,7 +179,7 @@ with aba_chat:
             salvar_jogo(state)
             st.rerun()
         except Exception as e:
-            st.error(f"Erro: {e}")
+            st.error(f"Erro no processamento da IA: {e}")
 
 with aba_inv: state["inventario"] = st.text_area("Inventário", state["inventario"], height=300)
 with aba_skills: state["habilidades"] = st.text_area("Habilidades", state["habilidades"], height=300)
