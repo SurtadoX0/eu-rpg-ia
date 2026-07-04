@@ -9,7 +9,7 @@ genai.configure(api_key=API_KEY)
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO ATUALIZADAS
+# REGRAS PADRÃO ATUALIZADAS (EQUILÍBRIO DE ESCOLHAS)
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
@@ -17,10 +17,14 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
 - Limitação de Aprendizado: O personagem falha em ações complexas no início, pois ainda não aprendeu.
 
+[DIRETRIZ DE ESTRUTURA DE ESCOLHAS (HÍBRIDA)]
+- Padrão Focado e Direto: Na maior parte do tempo (combates, perigos, ações imediatas), o Mestre deve obrigatoriamente fechar o turno com exatamente 4 opções numéricas (1, 2, 3, 4) específicas para guiar o ritmo.
+- Exceções de Mundo Aberto: Deixar o cenário em aberto ou perguntar "O que você faz?" NÃO é totalmente proibido, mas deve ser usado DE VEZ EM QUANDO e APENAS em momentos específicos (Ex: momentos de descanso, acampamentos seguros, exploração livre de vilas, ou após concluir uma grande missão onde o jogador precisa definir seu rumo).
+
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
 - Progresso por Uso (Prática): Toda ação física, mental ou técnica repetida gera ganho direto e orgânico de proficiência.
-- Notificações de Ganhos: O Mestre deve relatar esses micro-ganhos na narrativa de forma quantificada e percentual. Exemplos obrigatórios de estilo: "+6% de capacidade cardiovascular" (ao correr/fugir), "25% melhor em se esconder" (ao usar furtividade), ou "braços mais fortes por fazer força batendo ferro" (esforço físico mecânico).
-- Registro de Ficha: Esses bônus percentuais e melhorias corporais devem ser listados de forma acumulada na seção de Habilidades do jogador.
+- Notificações de Ganhos: O Mestre deve relatar esses micro-ganhos na narrativa de forma quantificada e percentual (Ex: "+6% de capacidade cardiovascular", "25% melhor em se esconder").
+- Registro de Ficha: Esses bônus devem ser listados acumulados na seção de Habilidades do jogador.
 
 [SISTEMA DE RAÇAS E DESCOBERTA OCULTA]
 - Linhagem Imprevisível: O jogador pode nascer pertencendo a qualquer raça dos 5 universos convergentes.
@@ -39,13 +43,13 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 [ATRIBUTOS VITAIS E PROGRESSÃO]
 - Estamina: Consumida por ações físicas e habilidades.
 - Poder de Luta (PL): Força absoluta recalculada após treinos ou feitos.
-- Estado Corporal: Condição física real. Treinos até a falha mecânica (Estilo Gabriel Ganley) amplificam o Estado Corporal e o PL.
+- Estado Corporal: Condição física real. Treinos até a falha mecânica amplificam o Estado Corporal e o PL.
 
 [MECÂNICAS DE JOGO]
 - Ações com Dado d20: Rolagens realistas e punitivas.
 - A Morte Não é o Fim: Gatilho para recomeço imprevisível ou reencarnação caótica.
 - Alertas de Sistema: "[ALERTA DE SISTEMA: NOVA HABILIDADE ADQUIRIDA]".
-- Fusão de Habilidades: Habilidades compatíveis se fundem em técnicas superiores."""
+- Fusão de Habilidades: Habilidades compatíveis se fundem."""
 
 def carregar_jogo():
     if os.path.exists(SAVE_FILE):
@@ -130,7 +134,7 @@ for attr in state["atributos"]:
 
 st.title("🧙‍♂️ Mestre Automatizado")
 
-aba_chat, aba_inv, aba_skills, aba_regras = st.tabs(["💬 Jogo & Narrative", "🎒 Inventário", "🥋 Habilidades", "⚙️ Regras"])
+aba_chat, aba_inv, aba_skills, aba_regras = st.tabs(["💬 Jogo & Narrativa", "🎒 Inventário", "🥋 Habilidades", "⚙️ Regras"])
 
 with aba_chat:
     container_chat = st.container(height=500)
@@ -153,16 +157,16 @@ with aba_chat:
         
         REGRAS DE ALTERAÇÃO AUTOMÁTICA:
         1. Se o jogador correu, atacou ou usou força, diminua a 'Estamina' proporcionalmente.
-        2. Atualize o campo 'habilidades' incluindo os ganhos de proficiência percentuais e melhorias físicas acumuladas obtidas pelas ações do jogador (Ex: '+6% de capacidade cardiovascular', '25% melhor em se esconder', 'Braços mais fortes por bater ferro').
+        2. Atualize o campo 'habilidades' incluindo os ganhos de proficiência obtidos.
         
         FORMATO JSON:
         {{
-          "narrativa": "Narração dos fatos incluindo os alertas de melhorias e opções 1, 2, 3 ao final.",
+          "narrativa": "Narração dos fatos. Por padrão, termine com exatamente 4 opções fechadas e numéricas (1, 2, 3, 4). Deixe a escolha totalmente em aberto APENAS em momentos específicos e justificáveis de descanso, calmaria ou decisões de longo prazo.",
           "atributos": {{
             "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
           }},
           "inventario": "Lista de itens",
-          "habilidades": "Lista atualizada de habilidades e proficiências percentuais obtidas"
+          "habilidades": "Lista atualizada de habilidades"
         }}
         """
 
