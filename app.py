@@ -165,7 +165,7 @@ with aba_chat:
         """
 
         try:
-            model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=instrucao_sistema, generation_config={"response_mime_type": "application/json"})
+            model = genai.GenerativeModel(model_name="gemini-2.5-pro", system_instruction=instrucao_sistema, ...
             response = model.generate_content([{"role": "user", "parts": [m["content"]]} for m in state["historico"]])
             dados = json.loads(response.text)
             
