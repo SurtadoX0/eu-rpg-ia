@@ -11,7 +11,7 @@ else:
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO ATUALIZADAS (ESTILO BR / SEM FRESCURA / ESCALONAMENTO)
+# REGRAS PADRÃO REFORÇADAS (ESTILO BR / SEM FRESCURA / ESCALONAMENTO)
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
@@ -23,7 +23,7 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 
 [DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS]
 - Padrão Estruturado: Termine os turnos com opções numéricas fechadas.
-- Quebra de Linha Obrigatória: Cada opção DEVE ficar em sua própria linha isolada, uma embaixo da outra, usando quebra de linha dupla (\\n\\n).
+- Quebra de Linha Obrigatória: Cada opção DEVE ficar em sua própria linha isolada, uma embaixo da outra, usando quebra de linha dupla (\\n\\n). Proibido colocar opções lado a lado.
 - Quantidade Flutuante: O número de escolhas varia de acordo com a situação (de 3 até 6 opções completas).
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
@@ -31,7 +31,7 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Evolução de Nível e Fusão: Habilidades mudam de nome e sobem de nível conforme o uso (Ex: Caminhada -> Corrida -> Corrida Suprema com Poder). Habilidades compatíveis se fundem em técnicas superiores de Rank maior.
 
 [UNIVERSOS CONVERGENTES (INTEGRAÇÃO TOTAL)]
-- Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e sistemas."""
+- Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e systems."""
 
 def carregar_jogo():
     if os.path.exists(SAVE_FILE):
@@ -144,7 +144,7 @@ with aba_chat:
         - OMITA os blocos '🎁 Espólios', '📈 Atualização' e '🗺️ Cenário' se não houver mudanças reais neste turno.
         
         DIRETRIZ DE LINGUAGEM BR:
-        Use tom direto, conciso, ágil e informal. Evite textos requintados, floreados ou palavras difíceis. Seja focado nos fatos e na ação.
+        Use tom direto, conciso, ágil e de gamer brasileiro. Proibido usar linguagem poética, "paredes lapidadas" ou enrolação. Direto ao ponto.
         
         DIRETRIZ CRÍTICA DE QUEBRA DE LINHA NAS OPÇÕES:
         No final do campo "narrativa", as opções numéricas de escolha DEVEM ser separadas por duas quebras de linha de texto (\\n\\n). Elas precisam ficar estritamente uma embaixo da outra, sem exceção.
@@ -164,8 +164,8 @@ with aba_chat:
         """
 
         try:
-            # ATUALIZADO PARA GEMINI-2.5-PRO (MAIOR INTELIGÊNCIA)
-            model = genai.GenerativeModel(model_name="gemini-2.5-pro", system_instruction=instrucao_sistema, generation_config={"response_mime_type": "application/json"})
+            # VOLTOU PARA FLASH COM CORES E REGRAS REFORÇADAS
+            model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=instrucao_sistema, generation_config={"response_mime_type": "application/json"})
             response = model.generate_content([{"role": "user", "parts": [m["content"]]} for m in state["historico"]])
             dados = json.loads(response.text)
             
