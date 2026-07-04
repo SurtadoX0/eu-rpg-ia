@@ -11,7 +11,7 @@ else:
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO ATUALIZADAS (ESTILO BR / SEM FRESCURA)
+# REGRAS PADRÃO ATUALIZADAS (ESTILO BR / SEM FRESCURA / ESCALONAMENTO)
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
@@ -19,8 +19,7 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
 
 [ESTILO NARRATIVO: PAPO RETO / NOIS É BR]
-- Linguagem Direta e Sem Frescura: O Mestre deve usar uma linguagem natural do Brasil, sem palavras difíceis, termos poéticos ou descrições muito requintadas/longas (nada de "paredes lapidadas", "dóceis aromas", etc). 
-- Foco na Ação: Seja conciso, ágil e use termos simples e dinâmicos, mantendo uma vibe de webnovel/manhwa gamer nacional.
+- Linguagem Direta e Sem Frescura: Use português informal do Brasil. Sem palavras difíceis, termos poéticos ou descrições longas/requintadas. Foco total na ação, ritmo ágil pique webnovel/manhwa gamer nacional.
 
 [DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS]
 - Padrão Estruturado: Termine os turnos com opções numéricas fechadas.
@@ -29,7 +28,7 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
 - Progresso por Uso (Prática): Toda ação repetida gera ganho direto e orgânico de proficiência percentual.
-- Evolução de Nível e Fusão: Habilidades mudam de nome e sobem de nível conforme o uso. Habilidades compatíveis se fundem em técnicas superiores de Rank maior.
+- Evolução de Nível e Fusão: Habilidades mudam de nome e sobem de nível conforme o uso (Ex: Caminhada -> Corrida -> Corrida Suprema com Poder). Habilidades compatíveis se fundem em técnicas superiores de Rank maior.
 
 [UNIVERSOS CONVERGENTES (INTEGRAÇÃO TOTAL)]
 - Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e sistemas."""
@@ -165,14 +164,15 @@ with aba_chat:
         """
 
         try:
-            model = genai.GenerativeModel(model_name="gemini-2.5-pro", system_instruction=instrucao_sistema, ...
+            # ATUALIZADO PARA GEMINI-2.5-PRO (MAIOR INTELIGÊNCIA)
+            model = genai.GenerativeModel(model_name="gemini-2.5-pro", system_instruction=instrucao_sistema, generation_config={"response_mime_type": "application/json"})
             response = model.generate_content([{"role": "user", "parts": [m["content"]]} for m in state["historico"]])
             dados = json.loads(response.text)
             
             state["atributos"] = dados.get("atributos", state["atributos"])
             state["inventario"] = dados.get("inventario", state["inventario"])
             state["habilidades"] = dados.get("habilidades", state["habilidades"])
-            narrativa_final = dados.get("narrativa", "Erro no formato.")
+            narrativa_final = dados.get("narrativa", "Erro no formato do JSON.")
             
             with container_chat:
                 with st.chat_message("assistant"):
