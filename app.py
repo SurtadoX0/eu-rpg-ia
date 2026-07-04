@@ -11,21 +11,25 @@ else:
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO
+# REGRAS PADRÃO ATUALIZADAS (ESTILO BR / SEM FRESCURA)
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
 - Inventário Inicial: O jogador começa COMPLETAMENTE SEM NADA.
 - Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
 
-[DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS E VARIÁVEIS]
-- Padrão Estruturado: Termine os turnos com opções numéricas fechadas, OBRIGATORIAMENTE uma embaixo da outra (uma por linha).
-- Quantidade Flutuante: O número de escolhas varia de acordo com a situação (de 3 até 6 opções completas), dando mais rotas quando o cenário pedir estratégia.
-- Exceção Aberta: Perguntas totalmente em aberto são raras e exclusivas de áreas seguras ou momentos de total calmaria.
+[ESTILO NARRATIVO: PAPO RETO / NOIS É BR]
+- Linguagem Direta e Sem Frescura: O Mestre deve usar uma linguagem natural do Brasil, sem palavras difíceis, termos poéticos ou descrições muito requintadas/longas (nada de "paredes lapidadas", "dóceis aromas", etc). 
+- Foco na Ação: Seja conciso, ágil e use termos simples e dinâmicos, mantendo uma vibe de webnovel/manhwa gamer nacional.
+
+[DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS]
+- Padrão Estruturado: Termine os turnos com opções numéricas fechadas.
+- Quebra de Linha Obrigatória: Cada opção DEVE ficar em sua própria linha isolada, uma embaixo da outra, usando quebra de linha dupla (\\n\\n).
+- Quantidade Flutuante: O número de escolhas varia de acordo com a situação (de 3 até 6 opções completas).
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
 - Progresso por Uso (Prática): Toda ação repetida gera ganho direto e orgânico de proficiência percentual.
-- Evolução de Nível e Fusão: Habilidades mudam de nome e sobem de nível conforme o uso (Ex: Caminhada -> Corrida -> Corrida Suprema com Poder). Habilidades compatíveis se fundem em técnicas superiores de Rank maior.
+- Evolução de Nível e Fusão: Habilidades mudam de nome e sobem de nível conforme o uso. Habilidades compatíveis se fundem em técnicas superiores de Rank maior.
 
 [UNIVERSOS CONVERGENTES (INTEGRAÇÃO TOTAL)]
 - Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e sistemas."""
@@ -136,40 +140,27 @@ with aba_chat:
         Habilidades Atuais: {state['habilidades']}
         Regras do Sistema: {state['regras_custom']}
         
-        DIRETRIZ DE FILTRAGEM E LIMPEZA DE NARRATIVA:
-        Monte o campo "narrativa" em Markdown respeitando estritamente o surgimento de blocos por utilidade:
+        DIRETRIZ DE FILTRAGEM DE NARRATIVA:
+        Monte o campo "narrativa" em Markdown respeitando a omissão de blocos vazios:
+        - OMITA os blocos '🎁 Espólios', '📈 Atualização' e '🗺️ Cenário' se não houver mudanças reais neste turno.
         
-        ### [Título do Evento ou Local]
-        **Resultado do Dado (Se aplicável):** X
+        DIRETRIZ DE LINGUAGEM BR:
+        Use tom direto, conciso, ágil e informal. Evite textos requintados, floreados ou palavras difíceis. Seja focado nos fatos e na ação.
         
-        O Confronto / Ação:
-        (Texto descritivo)
+        DIRETRIZ CRÍTICA DE QUEBRA DE LINHA NAS OPÇÕES:
+        No final do campo "narrativa", as opções numéricas de escolha DEVEM ser separadas por duas quebras de linha de texto (\\n\\n). Elas precisam ficar estritamente uma embaixo da outra, sem exceção.
         
-        🎮 ALERTA DE SISTEMA: (Exiba APENAS se houver ganho de nível ou proficiência nova)
-        
-        🎁 Espólios de Guerra: (Exiba APENAS se o jogador ganhou loot ou moedas novas. Se NÃO ganhou nada, OMITA esse bloco por completo)
-        
-        📈 Atualização do Sistema Inconsciente: (Exiba APENAS se a Estamina ou o Poder de Luta mudaram de valor real neste turno. Se os valores continuam idênticos, OMITA esse bloco por completo)
-        
-        📊 Painel do Jogador: (Mostre a tabela com os dados atuais)
-        
-        🗺️ Cenário: (Exiba APENAS se o jogador mudou de local, se o clima mudou ou se o tempo passou significativamente. Se ele continua no exato mesmo lugar e situação do turno anterior, OMITA esse bloco por completo)
-        
-        DIRETRIZ DE OPÇÕES:
-        As opções numéricas ao final devem vir OBRIGATORIAMENTE uma embaixo da outra (uma por linha, separadas por quebra de linha física no markdown). Nunca coloque as opções na mesma linha ou em bloco contínuo.
-        Exemplo exigido:
-        [1] Opção um
-        [2] Opção dois
-        [3] Opção três
+        Exemplo exato de como deve vir no texto do JSON:
+        "\\n\\n[1] Primeira opção\\n\\n[2] Segunda opção"
         
         FORMATO JSON EXIGIDO:
         {{
-          "narrativa": "Sua resposta formatada em Markdown seguindo estritamente as regras de omissão e quebra de linha acima",
+          "narrativa": "Sua narração aqui...\\n\\n[1] Opção um\\n\\n[2] Opção dois",
           "atributos": {{
             "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
           }},
-          "inventario": "Lista de itens atualizada",
-          "habilidades": "Lista atualizada de habilidades"
+          "inventario": "Lista de itens",
+          "habilidades": "Lista de habilidades"
         }}
         """
 
@@ -181,7 +172,7 @@ with aba_chat:
             state["atributos"] = dados.get("atributos", state["atributos"])
             state["inventario"] = dados.get("inventario", state["inventario"])
             state["habilidades"] = dados.get("habilidades", state["habilidades"])
-            narrativa_final = dados.get("narrativa", "O mestre encontrou uma falha no formato. Reenvie sua ação.")
+            narrativa_final = dados.get("narrativa", "Erro no formato.")
             
             with container_chat:
                 with st.chat_message("assistant"):
