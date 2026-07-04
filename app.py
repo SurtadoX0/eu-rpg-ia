@@ -9,40 +9,43 @@ genai.configure(api_key=API_KEY)
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO COMPLETAS
+# REGRAS PADRÃO ATUALIZADAS
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
-- Inventário Inicial: O jogador começa COMPLETAMENTE SEM NADA (absolutamente nenhum item, arma, ferramenta ou recurso).
-- Tabula Rasa Absoluta: O personagem não possui passado, memórias, fardos ou qualquer conhecimento sobre o mundo.
-- Limitação de Aprendizado: É mandatório que o personagem falhe ou seja incapaz de realizar ações complexas no início.
+- Inventário Inicial: O jogador começa COMPLETAMENTE SEM NADA.
+- Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
+- Limitação de Aprendizado: O personagem falha em ações complexas no início, pois ainda não aprendeu.
+
+[SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
+- Progresso por Uso (Prática): Toda ação física, mental ou técnica repetida gera ganho direto e orgânico de proficiência.
+- Notificações de Ganhos: O Mestre deve relatar esses micro-ganhos na narrativa de forma quantificada e percentual. Exemplos obrigatórios de estilo: "+6% de capacidade cardiovascular" (ao correr/fugir), "25% melhor em se esconder" (ao usar furtividade), ou "braços mais fortes por fazer força batendo ferro" (esforço físico mecânico).
+- Registro de Ficha: Esses bônus percentuais e melhorias corporais devem ser listados de forma acumulada na seção de Habilidades do jogador.
 
 [SISTEMA DE RAÇAS E DESCOBERTA OCULTA]
-- Linhagem Imprevisível: O jogador pode nascer pertencendo a qualquer raça, mutação ou hibridismo dos 5 universos convergentes.
-- Despertar Tardio: A verdadeira natureza pode ser mantida em segredo absoluto, manifestando-se apenas sob gatilhos lógicos.
-- Pistas Orgânicas: O Mestre deve injetar pistas sutis em vez de exposições baratas.
+- Linhagem Imprevisível: O jogador pode nascer pertencendo a qualquer raça dos 5 universos convergentes.
+- Despertar Tardio e Pistas Orgânicas: A natureza oculta manifesta-se por anomalias sutis no corpo durante esforços extremos.
 
 [SISTEMA DE PSICOLOGIA E SOBREVIVÊNCIA]
-- Sanidade e Trauma: A mente de uma criança é frágil. Presenciar horrores drena a Sanidade. Sanidade baixa resulta em tremores, pesadelos ou paralisia.
-- Percepção Mundial: O mundo reage à sua presença. NPCs e monstros podem vê-lo como presa fácil, aberração ou alguém digno de proteção.
+- Sanidade e Trauma: Presenciar horrores drena a Sanidade, causando tremores ou falhas no d20.
+- Percepção Mundial: O mundo reage a você (visto como presa, aberração ou alguém para proteger).
 
 [UNIVERSOS CONVERGENTES (INTEGRAÇÃO TOTAL)]
 - Dragon Ball, Bleach, Shangri-La Frontier, Solo Leveling, Tensei Slime: Inclusão absoluta de todos os conceitos, técnicas e sistemas.
 
 [SISTEMA DE TEMPO E TURNOS]
-- Ciclo Diário: Dividido estritamente em Manhã, Tarde e Noite. 
-- Cada ação complexa, expedição ou treino pesado consome exatamente 1 Turno.
+- Ciclo Diário: Manhã, Tarde e Noite. Cada ação complexa consome exatamente 1 Turno.
 
 [ATRIBUTOS VITAIS E PROGRESSÃO]
 - Estamina: Consumida por ações físicas e habilidades.
-- Poder de Luta (PL): Valor absoluto de força, recalculado após feitos ou evoluções.
-- Estado Corporal: Condição física real (Fadiga do SNC, lesões). Treinos até a falha amplificam PL.
+- Poder de Luta (PL): Força absoluta recalculada após treinos ou feitos.
+- Estado Corporal: Condição física real. Treinos até a falha mecânica (Estilo Gabriel Ganley) amplificam o Estado Corporal e o PL.
 
 [MECÂNICAS DE JOGO]
 - Ações com Dado d20: Rolagens realistas e punitivas.
-- A Morte Não é o Fim: Gatilho para recomeço imprevisível, reencarnação ou transição caótica.
+- A Morte Não é o Fim: Gatilho para recomeço imprevisível ou reencarnação caótica.
 - Alertas de Sistema: "[ALERTA DE SISTEMA: NOVA HABILIDADE ADQUIRIDA]".
-- Fusão de Habilidades: Habilidades compatíveis se fundem."""
+- Fusão de Habilidades: Habilidades compatíveis se fundem em técnicas superiores."""
 
 def carregar_jogo():
     if os.path.exists(SAVE_FILE):
@@ -97,11 +100,9 @@ else:
         st.session_state.confirmar_reset = False
         st.rerun()
 
-# --- NOVO SISTEMA DE BACKUP INFALÍVEL PARA NUVEM ---
 st.sidebar.markdown("---")
 st.sidebar.subheader("📦 Backup (Nuvem / Celular)")
 
-# Botão de Exportar Save
 json_save_string = json.dumps(state, ensure_ascii=False, indent=4)
 st.sidebar.download_button(
     label="📥 Baixar Arquivo de Save",
@@ -111,14 +112,13 @@ st.sidebar.download_button(
     use_container_width=True
 )
 
-# Campo de Importar Save
 arquivo_enviado = st.sidebar.file_uploader("📤 Carregar Arquivo de Save", type=["json"])
 if arquivo_enviado is not None:
     try:
         dados_carregados = json.load(arquivo_enviado)
         st.session_state.game_state = dados_carregados
         salvar_jogo(dados_carregados)
-        st.sidebar.success("Progresso restaurado com sucesso!")
+        st.sidebar.success("Progresso restaurado!")
         st.rerun()
     except Exception:
         st.sidebar.error("Arquivo de save inválido.")
@@ -130,7 +130,7 @@ for attr in state["atributos"]:
 
 st.title("🧙‍♂️ Mestre Automatizado")
 
-aba_chat, aba_inv, aba_skills, aba_regras = st.tabs(["💬 Jogo & Narrativa", "🎒 Inventário", "🥋 Habilidades", "⚙️ Regras"])
+aba_chat, aba_inv, aba_skills, aba_regras = st.tabs(["💬 Jogo & Narrative", "🎒 Inventário", "🥋 Habilidades", "⚙️ Regras"])
 
 with aba_chat:
     container_chat = st.container(height=500)
@@ -151,14 +151,18 @@ with aba_chat:
         Status: {json.dumps(state['atributos'])}
         Regras: {state['regras_custom']}
         
+        REGRAS DE ALTERAÇÃO AUTOMÁTICA:
+        1. Se o jogador correu, atacou ou usou força, diminua a 'Estamina' proporcionalmente.
+        2. Atualize o campo 'habilidades' incluindo os ganhos de proficiência percentuais e melhorias físicas acumuladas obtidas pelas ações do jogador (Ex: '+6% de capacidade cardiovascular', '25% melhor em se esconder', 'Braços mais fortes por bater ferro').
+        
         FORMATO JSON:
         {{
-          "narrativa": "Narração com opções 1, 2, 3 numeradas ao final.",
+          "narrativa": "Narração dos fatos incluindo os alertas de melhorias e opções 1, 2, 3 ao final.",
           "atributos": {{
             "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
           }},
-          "inventario": "...",
-          "habilidades": "..."
+          "inventario": "Lista de itens",
+          "habilidades": "Lista atualizada de habilidades e proficiências percentuais obtidas"
         }}
         """
 
