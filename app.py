@@ -11,7 +11,7 @@ else:
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO AJUSTADAS PARA O NOVO ESTILO VISUAL E ESCOLHAS AMPLAS
+# REGRAS PADRÃO
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
@@ -19,8 +19,8 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
 
 [DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS E VARIÁVEIS]
-- Padrão Estruturado: Termine os turnos com opções numéricas bem específicas de escolha.
-- Quantidade Flutuante: O número de opções deve variar organicamente conforme a situação do cenário, podendo ir de 3 até 6 escolhas numéricas completas para dar mais profundidade estratégica quando necessário.
+- Padrão Estruturado: Termine os turnos com opções numéricas fechadas.
+- Quantidade Flutuante: O número de escolhas varia de acordo com a situação (de 3 até 6 opções completas), dando mais rotas quando o cenário pedir estratégia.
 - Exceção Aberta: Perguntas totalmente em aberto ("O que você faz?") são raras e exclusivas de áreas seguras ou momentos de total calmaria.
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
@@ -130,7 +130,7 @@ with aba_chat:
         state["historico"].append({"role": "user", "content": prompt})
 
         instrucao_sistema = f"""
-        Você é o Mestre do RPG. Responda APENAS em um JSON estruturado.
+        Você é o Mestre do RPG. Responda APENAS em um JSON estruturado válido.
         Status Atual: {json.dumps(state['atributos'])}
         Inventário Atual: {state['inventario']}
         Habilidades Atuais: {state['habilidades']}
@@ -164,18 +164,33 @@ with aba_chat:
         [2] Opção Dinâmica 2
         ...
         [6] Opção Dinâmica 6 (Apresente de 3 a 6 opções numeradas dependendo da complexidade imediata do cenário)
+        
+        FORMATO JSON EXIGIDO:
+        {{
+          "narrativa": "Sua resposta completa formatada em Markdown igual ao modelo",
+          "atributos": {{
+            "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
+          }},
+          "inventario": "Lista de itens atualizada",
+          "habilidades": "Lista atualizada de habilidades"
+        }}
         """
 
         try:
             model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=instrucao_sistema, generation_config={"response_mime_type": "application/json"})
             response = model.generate_content([{"role": "user", "parts": [m["content"]]} for m in state["historico"]])
             dados = json.loads(response.text)
-            state["atributos"], state["inventario"], state["habilidades"] = dados["atributos"], dados["inventario"], dados["habilidades"]
+            
+            # BLINDAGEM COM .GET(): Se faltar alguma chave, o app não quebra
+            state["atributos"] = dados.get("atributos", state["atributos"])
+            state["inventario"] = dados.get("inventario", state["inventario"])
+            state["habilidades"] = dados.get("habilidades", state["habilidades"])
+            narrativa_final = dados.get("narrativa", "O mestre se confundiu com os blocos. Por favor, envie sua ação novamente.")
             
             with container_chat:
                 with st.chat_message("assistant"):
-                    st.write(dados["narrativa"])
-            state["historico"].append({"role": "assistant", "content": dados["narrativa"]})
+                    st.write(narrativa_final)
+            state["historico"].append({"role": "assistant", "content": narrativa_final})
             salvar_jogo(state)
             st.rerun()
         except Exception as e:
