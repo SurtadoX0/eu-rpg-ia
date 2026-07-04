@@ -3,7 +3,7 @@ import google.generativeai as genai
 import json
 import os
 
-# CONFIGURAÇÃO SEGURA DA API (Escondida no Streamlit Cloud)
+# CONFIGURAÇÃO SEGURA DA API
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 else:
@@ -11,7 +11,7 @@ else:
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO ATUALIZADAS (ESCOLHAS VARIÁVEIS)
+# REGRAS PADRÃO ATUALIZADAS (ESCALONAMENTO E EVOLUÇÃO)
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
@@ -25,9 +25,14 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Exceção Aberta: Perguntas em aberto ("O que você faz?") são raras e exclusivas de vilas seguras ou áreas sem perigo iminente.
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
-- Progresso por Uso (Prática): Toda ação física, mental ou técnica repetida gera ganho direto e orgânico de proficiência.
-- Notificações de Ganhos: O Mestre deve relatar esses micro-ganhos na narrativa de forma quantificada e percentual (Ex: "+6% de capacidade cardiovascular", "25% melhor em se esconder").
+- Progresso por Uso (Prática): Toda ação física, mental ou técnica repetida gera ganho direto e orgânico de proficiência percentual.
+- Notificações de Ganhos: O Mestre deve relatar esses micro-ganhos na narrativa de forma quantificada e percentual a cada ação relevante (Ex: "+6% de capacidade cardiovascular").
 - Registro de Ficha: Esses bônus devem ser listados acumulados na seção de Habilidades do jogador.
+
+[DIRETRIZ DE ESCALONAMENTO E EVOLUÇÃO DE TIER]
+- Dificuldade Inversa: À medida que os atributos e as proficiências sobem, ações antes difíceis tornam-se progressivamente mais fáceis. O Mestre deve dar bônus nas rolagens ou tornar ações básicas automáticas (sem necessidade de d20).
+- Passar de Nível / Mudança de Tier: As habilidades devem evoluir de categoria conforme acumulam porcentagem. O Mestre deve mudar o nome e o nível das ações de forma contínua (Exemplo: Caminhada Basica -> Corrida -> Corrida Rápida -> Corrida Impulsionada por Poder/Energia). Isso se aplica a tudo: força física, furtividade, controle de energia, etc.
+- Alerta de Rank Up: O Mestre deve anunciar textualmente quando uma habilidade sua "Upar" de Tier.
 
 [SISTEMA DE RAÇAS E DESCOBERTA OCULTA]
 - Linhagem Imprevisível: O jogador pode nascer pertencendo a qualquer raça dos 5 universos convergentes.
@@ -160,7 +165,7 @@ with aba_chat:
         
         REGRAS DE ALTERAÇÃO AUTOMÁTICA:
         1. Se o jogador correu, atacou ou usou força, diminua a 'Estamina' proporcionalmente.
-        2. Atualize o campo 'habilidades' incluindo os ganhos de proficiência obtidos.
+        2. Atualize o campo 'habilidades' incluindo os ganhos de proficiência e evoluções de rank/tier alcançados.
         
         FORMATO JSON:
         {{
