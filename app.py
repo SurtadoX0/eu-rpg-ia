@@ -9,7 +9,7 @@ genai.configure(api_key=API_KEY)
 
 SAVE_FILE = "rpg_engine_save.json"
 
-# REGRAS PADRÃO ATUALIZADAS (EQUILÍBRIO DE ESCOLHAS)
+# REGRAS PADRÃO ATUALIZADAS (ESCOLHAS VARIÁVEIS)
 REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Início do Jogo: O jogador SEMPRE começa estritamente como uma criança de 6 anos de idade.
 - Localização Inicial: Um local totalmente diferente e gerado de forma 100% aleatória a cada Novo Jogo.
@@ -17,9 +17,10 @@ REGRAS_PADRAO = """[DIRETRIZ DE INICIALIZAÇÃO OBRIGATÓRIA]
 - Tabula Rasa Absoluta: O personagem não possui passado, memórias ou conhecimento sobre o mundo.
 - Limitação de Aprendizado: O personagem falha em ações complexas no início, pois ainda não aprendeu.
 
-[DIRETRIZ DE ESTRUTURA DE ESCOLHAS (HÍBRIDA)]
-- Padrão Focado e Direto: Na maior parte do tempo (combates, perigos, ações imediatas), o Mestre deve obrigatoriamente fechar o turno com exatamente 4 opções numéricas (1, 2, 3, 4) específicas para guiar o ritmo.
-- Exceções de Mundo Aberto: Deixar o cenário em aberto ou perguntar "O que você faz?" NÃO é totalmente proibido, mas deve ser usado DE VEZ EM QUANDO e APENAS em momentos específicos (Ex: momentos de descanso, acampamentos seguros, exploração livre de vilas, ou após concluir uma grande missão onde o jogador precisa definir seu rumo).
+[DIRETRIZ DE ESTRUTURA DE ESCOLHAS DINÂMICAS]
+- Padrão Estruturado: Na maior parte do tempo (combates, perigos, ações imediatas), o Mestre deve fechar o turno com opções numéricas (1, 2, 3...) claras e específicas para guiar o ritmo.
+- Quantidade Variável: O número de opções não é fixo; ele pode variar (ex: entre 3 a 5 escolhas) de acordo com o que o cenário permitir.
+- Exceções de Mundo Aberto: Deixar a escolha totalmente livre ("O que você faz?") deve ocorrer de vez em quando e apenas em momentos específicos de descanso, vilas seguras ou transições de história.
 
 [SISTEMA DE PROFICIÊNCIA E EVOLUÇÃO ORGÂNICA]
 - Progresso por Uso (Prática): Toda ação física, mental ou técnica repetida gera ganho direto e orgânico de proficiência.
@@ -161,12 +162,12 @@ with aba_chat:
         
         FORMATO JSON:
         {{
-          "narrativa": "Narração dos fatos. Por padrão, termine com exatamente 4 opções fechadas e numéricas (1, 2, 3, 4). Deixe a escolha totalmente em aberto APENAS em momentos específicos e justificáveis de descanso, calmaria ou decisões de longo prazo.",
+          "narrativa": "Narração dos fatos. Por padrão, termine com uma lista de opções fechadas e numéricas (como 3 a 5 opções numeradas) que varie de acordo com a situação do cenário. Permita perguntas totalmente em aberto somente em raros momentos de total calmaria e segurança.",
           "atributos": {{
             "Poder de Luta": "Valor", "Estamina": "Valor", "Sanidade": "Valor", "Reputação": "Valor", "Moedas": "Valor"
           }},
           "inventario": "Lista de itens",
-          "habilidades": "Lista atualizada de habilidades"
+          "habilidades": "Lista updated de habilidades"
         }}
         """
 
